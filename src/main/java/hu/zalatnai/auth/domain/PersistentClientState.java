@@ -1,11 +1,10 @@
 package hu.zalatnai.auth.domain;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
 class PersistentClientState extends ClientState {
-
-    PersistentClientState(StateRepository<ClientState> clientStateRepository) {
-        super(clientStateRepository);
-    }
-
     @Override
     public int getId() {
         return STATE_PERSISTENT;

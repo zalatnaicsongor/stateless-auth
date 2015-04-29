@@ -29,10 +29,6 @@ public class Application {
         return id;
     }
 
-    @NotNull public Client instantiate(ClientFactory clientFactory, String deviceUuid, String deviceName) {
-        return clientFactory.create(this, deviceUuid, deviceName);
-    }
-
     @NotNull public Duration getDefaultTokenLifetime() {
         return defaultTokenLifetime;
     }

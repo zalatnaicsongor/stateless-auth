@@ -1,19 +1,24 @@
 package hu.zalatnai.auth.domain;
 
+import hu.zalatnai.auth.service.infrastructure.client.TokenStateToIntegerConverter;
 import hu.zalatnai.sdk.service.RandomGenerator;
 import org.jetbrains.annotations.NotNull;
 
+import javax.persistence.Convert;
+import javax.persistence.Embeddable;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 
+@Embeddable
 public class Token {
 
     byte[] accessToken;
 
     byte[] refreshToken;
 
-    TokenState state;
+    @Convert(converter = TokenStateToIntegerConverter.class)
+    TokenState tokenState;
 
     Instant issuedAt;
 
@@ -26,10 +31,10 @@ public class Token {
 
     Token(@NotNull Clock clock, @NotNull Duration accessTokenLifetime, @NotNull RandomGenerator randomGenerator, TransientTokenState tokenState) {
         this.issuedAt = clock.instant();
-        expirationTime = issuedAt.plus(accessTokenLifetime);
-        this.accessTokenLifetime = accessTokenLifetime;
+        this.expirationTime = issuedAt.plus(accessTokenLifetime);
 
-        this.state = tokenState;
+        this.accessTokenLifetime = accessTokenLifetime;
+        this.tokenState = tokenState;
 
         this.accessToken = randomGenerator.getBytes(32);
         this.refreshToken = randomGenerator.getBytes(32);
@@ -54,14 +59,22 @@ public class Token {
     }
 
     void refresh() {
-
+        tokenState = tokenState.refresh(this);
     }
 
     void persist() {
-
+        tokenState = tokenState.hash(this);
     }
 
     void blacklist() {
+        tokenState = tokenState.blacklist(this);
+    }
 
+    void setAccessToken(byte[] accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    void setRefreshToken(byte[] refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }

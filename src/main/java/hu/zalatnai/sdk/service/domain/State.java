@@ -1,8 +1,8 @@
 package hu.zalatnai.sdk.service.domain;
 
-/**
- * Created by zalatnaicsongor on 2015.04.27..
- */
-public interface State {
+//this is ugly as hell
+public interface State<T extends State<T>> {
     int getId();
+
+    void setStateRepository(StateRepository<T> stateRepository);
 }

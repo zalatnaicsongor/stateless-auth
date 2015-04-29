@@ -1,11 +1,13 @@
 package hu.zalatnai.auth.domain;
 
 import hu.zalatnai.auth.service.infrastructure.client.ClientStateToIntegerConverter;
+import hu.zalatnai.sdk.service.infrastructure.InstantToUnixTimestampConverter;
 import org.apache.commons.lang3.Validate;
 import org.hibernate.validator.constraints.NotBlank;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
@@ -13,27 +15,20 @@ import java.util.Optional;
 @Entity
 public class Client {
 
-    @Id
-    @NotBlank
-    private String uuid;
-
     @Embedded
     private Token token;
 
-    @NotBlank
-    private String applicationId;
-
-    @NotBlank
-    private String deviceUuid;
+    @EmbeddedId
+    private ClientIdentifier clientIdentifier;
 
     @NotBlank
     private String deviceName;
 
-    @NotBlank
+    @Convert(converter = InstantToUnixTimestampConverter.class)
     private Instant created;
 
     @Convert(converter = ClientStateToIntegerConverter.class)
-    private ClientState state;
+    private ClientState clientState;
 
     @Column(nullable = true)
     private String userId;
@@ -45,17 +40,16 @@ public class Client {
         Validate.notBlank(deviceName);
         Validate.notBlank(deviceUuid);
 
-        this.deviceUuid = deviceUuid;
+        this.clientIdentifier = new ClientIdentifier(deviceUuid, application.getId());
         this.deviceName = deviceName;
-        this.applicationId = application.getId();
-        this.state = state;
+        this.clientState = clientState;
         this.created = clock.instant();
         this.token = tokenGenerator.generate(application.getDefaultTokenLifetime());
     }
 
     @NotNull
     public String getApplicationId() {
-        return applicationId;
+        return clientIdentifier.getApplicationId();
     }
 
     @NotNull
@@ -68,11 +62,12 @@ public class Client {
     }
 
     public void refresh() {
-        state = state.refresh(this);
+        clientState = clientState.refresh(this);
     }
 
     public void persist() {
-        state = state.persist(this);
+        token.persist();
+        clientState = clientState.persist(this);
     }
 
     public void addUserToClient(@NotNull String userId) {
@@ -86,18 +81,51 @@ public class Client {
 
     @NotNull
     public String getDeviceUuid() {
-        return deviceUuid;
+        return clientIdentifier.getDeviceUuid();
     }
 
     public Optional<String> getUserId() {
         return Optional.ofNullable(userId);
     }
 
-    public String getUuid() {
-        return uuid;
-    }
-
     public Instant getCreated() {
         return created;
+    }
+
+    public int getStatus() {
+        return clientState.getId();
+    }
+}
+
+@Embeddable
+class ClientIdentifier implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private String deviceUuid;
+
+    private String applicationId;
+
+    String getDeviceUuid() {
+        return deviceUuid;
+    }
+
+    void setDeviceUuid(String deviceUuid) {
+        this.deviceUuid = deviceUuid;
+    }
+
+    String getApplicationId() {
+        return applicationId;
+    }
+
+    void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    ClientIdentifier(String deviceUuid, String applicationId) {
+        this.deviceUuid = deviceUuid;
+        this.applicationId = applicationId;
+    }
+
+    ClientIdentifier() {
     }
 }
