@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class TokenState implements State<TokenState> {
 
-    public static final int STATE_TRANSIENT = 1;
-    public static final int STATE_PERSISTENT = 2;
+    public static final int STATE_UNHASHED = 1;
+    public static final int STATE_HASHED = 2;
     public static final int STATE_BLACKLISTED = 3;
 
     protected StateRepository<TokenState> tokenStateRepository;
@@ -22,11 +22,7 @@ public abstract class TokenState implements State<TokenState> {
         throw new OperationInapplicableException();
     }
 
-    public TokenState blacklist(Token token) {
-        throw new OperationInapplicableException();
-    }
-
-    public TokenState refresh(Token token) {
+    public TokenState refresh(Token token, byte[] hashedRefreshToken) {
         throw new OperationInapplicableException();
     }
 }

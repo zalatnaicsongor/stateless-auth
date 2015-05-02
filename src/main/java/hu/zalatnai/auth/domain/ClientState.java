@@ -4,7 +4,6 @@ import hu.zalatnai.auth.domain.exception.OperationInapplicableException;
 import hu.zalatnai.sdk.service.domain.State;
 import hu.zalatnai.sdk.service.domain.StateRepository;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 
 abstract public class ClientState implements State<ClientState> {
 
@@ -23,7 +22,21 @@ abstract public class ClientState implements State<ClientState> {
     }
 
     @NotNull
-    public ClientState refresh(@NotNull Client client) {
+    public ClientState refreshToken(@NotNull Client client, byte[] refreshToken) {
+        throw new OperationInapplicableException();
+    }
+
+    @NotNull
+    public ClientState blacklist(@NotNull Client client) {
+        throw new OperationInapplicableException();
+    }
+
+    public byte[] getAccessToken(@NotNull Client client) {
+        throw new OperationInapplicableException();
+
+    }
+
+    public byte[] getRefreshToken(@NotNull Client client) {
         throw new OperationInapplicableException();
     }
 

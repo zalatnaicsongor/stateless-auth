@@ -17,9 +17,9 @@ class TokenGenerator {
     Clock clock;
 
     @Autowired
-    TransientTokenState transientTokenState;
+    UnhashedTokenState unhashedTokenState;
 
     public Token generate(Duration defaultAccessTokenLifetime) {
-        return new Token(clock, defaultAccessTokenLifetime, randomGenerator, transientTokenState);
+        return new Token(clock, defaultAccessTokenLifetime, randomGenerator, unhashedTokenState);
     }
 }

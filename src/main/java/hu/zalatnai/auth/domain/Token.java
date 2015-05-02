@@ -11,7 +11,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 @Embeddable
-public class Token {
+class Token {
 
     byte[] accessToken;
 
@@ -29,7 +29,7 @@ public class Token {
     Token() {
     }
 
-    Token(@NotNull Clock clock, @NotNull Duration accessTokenLifetime, @NotNull RandomGenerator randomGenerator, TransientTokenState tokenState) {
+    Token(@NotNull Clock clock, @NotNull Duration accessTokenLifetime, @NotNull RandomGenerator randomGenerator, UnhashedTokenState tokenState) {
         this.issuedAt = clock.instant();
         this.expirationTime = issuedAt.plus(accessTokenLifetime);
 
@@ -41,33 +41,29 @@ public class Token {
     }
 
     @NotNull
-    public byte[] getAccessToken() {
+    byte[] getAccessToken() {
         return accessToken.clone();
     }
 
     @NotNull
-    public byte[] getRefreshToken() {
+    byte[] getRefreshToken() {
         return refreshToken.clone();
     }
 
-    public Instant getIssuedAt() {
+    Instant getIssuedAt() {
         return issuedAt;
     }
 
-    public Instant getExpirationTime() {
+    Instant getExpirationTime() {
         return expirationTime;
     }
 
-    void refresh() {
-        tokenState = tokenState.refresh(this);
+    void refresh(byte[] hashedRefreshToken) {
+        tokenState = tokenState.refresh(this, hashedRefreshToken);
     }
 
-    void persist() {
+    void hash() {
         tokenState = tokenState.hash(this);
-    }
-
-    void blacklist() {
-        tokenState = tokenState.blacklist(this);
     }
 
     void setAccessToken(byte[] accessToken) {
