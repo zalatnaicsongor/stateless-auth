@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class PersistentClientStateTest {
@@ -39,5 +40,27 @@ public class PersistentClientStateTest {
     @Test
     public void testGetIdReturnsPersistent() throws Exception {
         assertEquals(ClientState.STATE_PERSISTENT, persistentClientState.getId());
+    }
+
+    @Test
+    public void testRefreshTokenDelegatesTheCallToTheToken() {
+        byte[] refreshToken = {'a', 'b'};
+
+        persistentClientState.refreshToken(client, refreshToken);
+        verify(token).refresh(refreshToken);
+    }
+
+    @Test
+    public void testRefreshTokenReturnsThePersistentStateAsTheNextState() {
+        ClientState returnedState = persistentClientState.refreshToken(client, new byte[]{'a'});
+
+        assertTrue(returnedState instanceof PersistentClientState);
+    }
+
+    @Test
+    public void testBlacklistReturnsTheBlacklistedStateAsTheNextState() {
+        ClientState returnedState = persistentClientState.blacklist(client);
+
+        assertTrue(returnedState instanceof BlacklistedClientState);
     }
 }

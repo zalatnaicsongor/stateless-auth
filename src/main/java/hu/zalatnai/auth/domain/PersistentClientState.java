@@ -20,6 +20,6 @@ class PersistentClientState extends ClientState {
     @NotNull
     @Override
     public ClientState blacklist(@NotNull Client client) {
-        return super.blacklist(client);
+        return clientStateRepository.getById(ClientState.STATE_BLACKLISTED);
     }
 }

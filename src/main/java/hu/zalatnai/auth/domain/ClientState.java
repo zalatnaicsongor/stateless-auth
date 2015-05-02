@@ -9,6 +9,7 @@ abstract public class ClientState implements State<ClientState> {
 
     public static final int STATE_TRANSIENT = 1;
     public static final int STATE_PERSISTENT = 2;
+    public static final int STATE_BLACKLISTED = 3;
 
     protected StateRepository<ClientState> clientStateRepository;
 
