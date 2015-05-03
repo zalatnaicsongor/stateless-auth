@@ -1,6 +1,7 @@
 package hu.zalatnai.auth.domain;
 
 import hu.zalatnai.auth.domain.exception.InvalidRefreshTokenException;
+import hu.zalatnai.auth.domain.exception.OperationInapplicableException;
 import hu.zalatnai.sdk.service.RandomGenerator;
 import hu.zalatnai.sdk.service.domain.StateRepository;
 import org.junit.Before;
@@ -19,7 +20,7 @@ public class HashedTokenStateTest {
     StateRepository<TokenState> tokenStateRepository;
 
     @Mock
-    UnhashedTokenState unhashedTokenState;
+    RefreshedTokenState refreshedTokenState;
 
     @Mock
     RandomGenerator randomGenerator;
@@ -39,7 +40,7 @@ public class HashedTokenStateTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        when(tokenStateRepository.getById(TokenState.STATE_UNHASHED)).thenReturn(unhashedTokenState);
+        when(tokenStateRepository.getById(TokenState.STATE_REFRESHED)).thenReturn(refreshedTokenState);
 
         when(token.getRefreshToken()).thenReturn(originalRefreshToken);
 
@@ -66,16 +67,21 @@ public class HashedTokenStateTest {
     }
 
     @Test
-    public void RefreshReturnsTheUnhashedStateAsTheNextState() {
+    public void RefreshReturnsRefreshedStateAsTheNextState() {
         TokenState retval = hashedTokenState.refresh(token, originalRefreshToken);
 
-        verify(tokenStateRepository).getById(TokenState.STATE_UNHASHED);
+        verify(tokenStateRepository).getById(TokenState.STATE_REFRESHED);
 
-        assertTrue(retval instanceof UnhashedTokenState);
+        assertTrue(retval instanceof RefreshedTokenState);
     }
 
     @Test
     public void getIdReturnsHashedAsTheStatesId() {
         assertEquals(TokenState.STATE_HASHED, hashedTokenState.getId());
+    }
+
+    @Test(expected = OperationInapplicableException.class)
+    public void testHashThrows() {
+        hashedTokenState.hash(token);
     }
 }

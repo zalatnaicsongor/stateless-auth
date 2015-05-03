@@ -1,25 +1,18 @@
 package hu.zalatnai.auth.domain;
 
-import hu.zalatnai.sdk.service.UUIDGenerator;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-class TransientClientState extends ClientState {
-
-    @Autowired
-    UUIDGenerator uuidGenerator;
-
+class RefreshedClientState extends ClientState {
     @Override
     public int getId() {
-        return STATE_TRANSIENT;
+        return ClientState.STATE_REFRESHED;
     }
 
     @NotNull
     @Override
     public ClientState persist(@NotNull Client client) {
-        client.assignClientUUID(uuidGenerator.generateV4());
         client.getToken().hash();
         return clientStateRepository.getById(STATE_PERSISTENT);
     }

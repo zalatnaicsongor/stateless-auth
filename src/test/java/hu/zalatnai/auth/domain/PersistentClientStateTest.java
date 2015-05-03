@@ -17,7 +17,10 @@ public class PersistentClientStateTest {
     StateRepository<ClientState> clientStateRepository;
 
     @Mock
-    PersistentClientState persistentClientStateMock;
+    RefreshedClientState refreshedClientState;
+
+    @Mock
+    BlacklistedClientState blacklistedClientState;
 
     @Mock
     Client client;
@@ -32,9 +35,9 @@ public class PersistentClientStateTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-
         when(client.getToken()).thenReturn(token);
-        when(clientStateRepository.getById(ClientState.STATE_PERSISTENT)).thenReturn(persistentClientStateMock);
+        when(clientStateRepository.getById(ClientState.STATE_REFRESHED)).thenReturn(refreshedClientState);
+        when(clientStateRepository.getById(ClientState.STATE_BLACKLISTED)).thenReturn(blacklistedClientState);
     }
 
     @Test
@@ -51,10 +54,10 @@ public class PersistentClientStateTest {
     }
 
     @Test
-    public void testRefreshTokenReturnsThePersistentStateAsTheNextState() {
+    public void testRefreshTokenReturnsRefreshedStateAsTheNextState() {
         ClientState returnedState = persistentClientState.refreshToken(client, new byte[]{'a'});
 
-        assertTrue(returnedState instanceof PersistentClientState);
+        assertTrue(returnedState instanceof RefreshedClientState);
     }
 
     @Test

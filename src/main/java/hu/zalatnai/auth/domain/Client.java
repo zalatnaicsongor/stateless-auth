@@ -1,22 +1,24 @@
 package hu.zalatnai.auth.domain;
 
-import hu.zalatnai.auth.service.infrastructure.client.ClientStateToIntegerConverter;
+import hu.zalatnai.auth.domain.exception.StateAlreadyResolvedException;
+import hu.zalatnai.sdk.service.domain.StateRepository;
 import hu.zalatnai.sdk.service.domain.exception.UUIDAlreadyAssignedException;
 import hu.zalatnai.sdk.service.infrastructure.InstantToUnixTimestampConverter;
 import org.apache.commons.lang3.Validate;
+import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.NotBlank;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Optional;
 import java.util.UUID;
 
 @Entity
 public class Client {
 
     @Id
+    @Type(type = "org.hibernate.type.UUIDCharType")
     private UUID clientUuid;
 
     @Embedded
@@ -32,11 +34,10 @@ public class Client {
     @Convert(converter = InstantToUnixTimestampConverter.class)
     private Instant created;
 
-    @Convert(converter = ClientStateToIntegerConverter.class)
+    @Transient
     private ClientState clientState;
 
-    @Column(nullable = true)
-    private String userId;
+    private int clientStatus;
 
     Client() {
     }
@@ -48,68 +49,60 @@ public class Client {
         this.deviceUuid = deviceUuid;
         this.applicationId = application.getId();
         this.deviceName = deviceName;
-        this.clientState = clientState;
         this.created = clock.instant();
         this.token = tokenGenerator.generate(application.getDefaultTokenLifetime());
+
+        this.setClientState(clientState);
     }
 
     Token getToken() {
         return token;
     }
 
-    @NotNull
-    public String getApplicationId() {
-        return applicationId;
+    private void setClientState(ClientState clientStatus) {
+        clientState = clientStatus;
+        this.clientStatus = clientState.getId();
     }
 
-    public void refreshToken(byte[] refreshToken) {
-        clientState = clientState.refreshToken(this, refreshToken);
+    public void resolveStateFromStatus(StateRepository<ClientState> clientStateRepository, StateRepository<TokenState> tokenStateStateRepository) {
+        if (clientState != null) {
+            throw new StateAlreadyResolvedException();
+        }
+
+        setClientState(clientStateRepository.getById(clientStatus));
+        token.resolveStateFromStatus(tokenStateStateRepository);
+    }
+
+    public void refreshToken(byte[] hashedRefreshToken) {
+        setClientState(clientState.refreshToken(this, hashedRefreshToken));
     }
 
     public void persist() {
-        clientState = clientState.persist(this);
+        setClientState(clientState = clientState.persist(this));
     }
 
     public void blacklist() {
-        clientState = clientState.blacklist(this);
+        setClientState(clientState = clientState.blacklist(this));
     }
 
     public byte[] getAccessToken() {
-        return clientState.getAccessToken(this);
+        return token.getAccessToken();
     }
 
     public byte[] getRefreshToken() {
-        return clientState.getRefreshToken(this);
-    }
-
-    public void addUserToClient(@NotNull String userId) {
-        this.userId = userId;
-    }
-
-    @NotNull
-    public String getDeviceName() {
-        return deviceName;
-    }
-
-    @NotNull
-    public String getDeviceUuid() {
-        return deviceUuid;
-    }
-
-    public Optional<String> getUserId() {
-        return Optional.ofNullable(userId);
-    }
-
-    public Instant getCreated() {
-        return created;
-    }
-
-    public int getStatus() {
-        return clientState.getId();
+        return token.getRefreshToken();
     }
 
     public UUID getClientUuid() {
         return clientUuid;
+    }
+
+    public Instant getTokenIssuedAt() {
+        return token.getIssuedAt();
+    }
+
+    public Instant getTokenExpirationTime() {
+        return token.getExpirationTime();
     }
 
     void assignClientUUID(UUID clientUuid) {
@@ -117,5 +110,9 @@ public class Client {
             throw new UUIDAlreadyAssignedException();
         }
         this.clientUuid = clientUuid;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
     }
 }

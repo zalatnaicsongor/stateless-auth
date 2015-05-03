@@ -10,6 +10,7 @@ abstract public class ClientState implements State<ClientState> {
     public static final int STATE_TRANSIENT = 1;
     public static final int STATE_PERSISTENT = 2;
     public static final int STATE_BLACKLISTED = 3;
+    public static final int STATE_REFRESHED = 4;
 
     protected StateRepository<ClientState> clientStateRepository;
 
@@ -23,21 +24,12 @@ abstract public class ClientState implements State<ClientState> {
     }
 
     @NotNull
-    public ClientState refreshToken(@NotNull Client client, byte[] refreshToken) {
+    public ClientState refreshToken(@NotNull Client client, byte[] hashedRefreshToken) {
         throw new OperationInapplicableException();
     }
 
     @NotNull
     public ClientState blacklist(@NotNull Client client) {
-        throw new OperationInapplicableException();
-    }
-
-    public byte[] getAccessToken(@NotNull Client client) {
-        throw new OperationInapplicableException();
-
-    }
-
-    public byte[] getRefreshToken(@NotNull Client client) {
         throw new OperationInapplicableException();
     }
 

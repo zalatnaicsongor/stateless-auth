@@ -1,8 +1,8 @@
 package hu.zalatnai.auth.domain;
 
 import hu.zalatnai.auth.domain.exception.InvalidDefaultTokenLifetimeException;
-import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.util.Assert;
 
 import java.time.Duration;
 
@@ -15,7 +15,7 @@ public class Application {
      * @param id    id
      */
     public Application(@NotNull String id, @NotNull Duration defaultTokenLifetime) {
-        Validate.notBlank(id);
+        Assert.hasText(id);
 
         if (defaultTokenLifetime.isNegative()) {
             throw new InvalidDefaultTokenLifetimeException();

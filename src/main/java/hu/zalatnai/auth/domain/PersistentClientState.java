@@ -12,9 +12,9 @@ class PersistentClientState extends ClientState {
 
     @NotNull
     @Override
-    public ClientState refreshToken(@NotNull Client client, byte[] refreshToken) {
-        client.getToken().refresh(refreshToken);
-        return clientStateRepository.getById(ClientState.STATE_PERSISTENT);
+    public ClientState refreshToken(@NotNull Client client, byte[] hashedRefreshToken) {
+        client.getToken().refresh(hashedRefreshToken);
+        return clientStateRepository.getById(ClientState.STATE_REFRESHED);
     }
 
     @NotNull

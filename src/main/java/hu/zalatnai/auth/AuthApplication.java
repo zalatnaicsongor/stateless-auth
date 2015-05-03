@@ -1,6 +1,6 @@
 package hu.zalatnai.auth;
 
-import hu.zalatnai.auth.domain.*;
+import hu.zalatnai.auth.dto.output.ClientDTO;
 import hu.zalatnai.sdk.service.infrastructure.InstantToUnixTimestampConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -9,10 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.transaction.Transactional;
 import java.security.SecureRandom;
 import java.time.Clock;
 
@@ -23,14 +21,7 @@ import java.time.Clock;
 public class AuthApplication implements CommandLineRunner {
 
     @Autowired
-    ApplicationRepository applicationRepository;
-
-    @Autowired
-    ApplicationInstantiator applicationInstantiator;
-
-    @Autowired
-    ClientRepository clientRepository;
-
+    AuthFacade authFacade;
 
     @Bean
     public SecureRandom getSecureRandom() {
@@ -47,12 +38,7 @@ public class AuthApplication implements CommandLineRunner {
     }
 
     @Override
-    @Transactional
     public void run(String... strings) throws Exception {
-        Application application = applicationRepository.getById("8vW+TABgk4Vy7sPIjeb5LVvntKb7+I2nwgsDXBDhtnc=");
-        Client client = applicationInstantiator.create(application, "deviceUuid", "deviceName");
-        client.persist();
-
-        clientRepository.saveAndFlush(client);
+        System.out.println("booted");
     }
 }

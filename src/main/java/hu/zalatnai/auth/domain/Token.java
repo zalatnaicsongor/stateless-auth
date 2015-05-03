@@ -1,11 +1,12 @@
 package hu.zalatnai.auth.domain;
 
-import hu.zalatnai.auth.service.infrastructure.client.TokenStateToIntegerConverter;
+import hu.zalatnai.auth.domain.exception.StateAlreadyResolvedException;
 import hu.zalatnai.sdk.service.RandomGenerator;
+import hu.zalatnai.sdk.service.domain.StateRepository;
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.Convert;
 import javax.persistence.Embeddable;
+import javax.persistence.Transient;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -13,31 +14,41 @@ import java.time.Instant;
 @Embeddable
 class Token {
 
-    byte[] accessToken;
+    private byte[] accessToken;
 
-    byte[] refreshToken;
+    private byte[] refreshToken;
 
-    @Convert(converter = TokenStateToIntegerConverter.class)
-    TokenState tokenState;
+    @Transient
+    private TokenState tokenState;
 
-    Instant issuedAt;
+    private int tokenStatus;
 
-    Instant expirationTime;
+    private Instant issuedAt;
 
-    Duration accessTokenLifetime;
+    private Instant expirationTime;
+
+    private Duration accessTokenLifetime;
 
     Token() {
     }
 
     Token(@NotNull Clock clock, @NotNull Duration accessTokenLifetime, @NotNull RandomGenerator randomGenerator, UnhashedTokenState tokenState) {
-        this.issuedAt = clock.instant();
-        this.expirationTime = issuedAt.plus(accessTokenLifetime);
+        this.generateTokenExpirationTime(clock, accessTokenLifetime);
 
         this.accessTokenLifetime = accessTokenLifetime;
         this.tokenState = tokenState;
 
         this.accessToken = randomGenerator.getBytes(32);
         this.refreshToken = randomGenerator.getBytes(32);
+    }
+
+    Duration getAccessTokenLifetime() {
+        return accessTokenLifetime;
+    }
+
+    void generateTokenExpirationTime(Clock clock, Duration accessTokenLifetime) {
+        this.issuedAt = clock.instant();
+        this.expirationTime = issuedAt.plus(accessTokenLifetime);
     }
 
     @NotNull
@@ -59,11 +70,11 @@ class Token {
     }
 
     void refresh(byte[] hashedRefreshToken) {
-        tokenState = tokenState.refresh(this, hashedRefreshToken);
+        setTokenState(tokenState.refresh(this, hashedRefreshToken));
     }
 
     void hash() {
-        tokenState = tokenState.hash(this);
+        setTokenState(tokenState.hash(this));
     }
 
     void setAccessToken(byte[] accessToken) {
@@ -72,5 +83,21 @@ class Token {
 
     void setRefreshToken(byte[] refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    private void setTokenState(TokenState tokenState) {
+        this.tokenState = tokenState;
+        this.tokenStatus = tokenState.getId();
+    }
+
+    void resolveStateFromStatus(StateRepository<TokenState> tokenStateRepository) {
+        if (tokenState != null) {
+            throw new StateAlreadyResolvedException();
+        }
+        setTokenState(tokenStateRepository.getById(tokenStatus));
+    }
+
+    int getTokenStatus() {
+        return this.tokenStatus;
     }
 }

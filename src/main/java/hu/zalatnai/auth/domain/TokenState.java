@@ -9,7 +9,7 @@ public abstract class TokenState implements State<TokenState> {
 
     public static final int STATE_UNHASHED = 1;
     public static final int STATE_HASHED = 2;
-    public static final int STATE_BLACKLISTED = 3;
+    public static final int STATE_REFRESHED = 4;
 
     protected StateRepository<TokenState> tokenStateRepository;
 

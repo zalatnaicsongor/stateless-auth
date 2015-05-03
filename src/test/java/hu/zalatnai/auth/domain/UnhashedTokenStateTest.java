@@ -1,5 +1,6 @@
 package hu.zalatnai.auth.domain;
 
+import hu.zalatnai.auth.domain.exception.OperationInapplicableException;
 import hu.zalatnai.sdk.service.SHA256;
 import hu.zalatnai.sdk.service.domain.StateRepository;
 import org.junit.Before;
@@ -88,5 +89,10 @@ public class UnhashedTokenStateTest {
     @Test
     public void testGetIdReturnsThatTheStateIsTheUnhashedState() {
         assertEquals(TokenState.STATE_UNHASHED, unhashedTokenState.getId());
+    }
+
+    @Test(expected = OperationInapplicableException.class)
+    public void testRefreshThrows() {
+        unhashedTokenState.refresh(token, new byte[]{'a'});
     }
 }

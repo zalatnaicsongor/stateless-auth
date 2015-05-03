@@ -21,4 +21,9 @@ public class ApplicationTest {
     public void itCannotBeConstructedIfTheExpiryDurationIsNegative() {
         new Application("applicationId", Duration.ofNanos(-1));
     }
+
+    @Test
+    public void itCanBeConstructedWithTheRightValues() {
+        new Application("applicationId", Duration.ofNanos(1));
+    }
 }
