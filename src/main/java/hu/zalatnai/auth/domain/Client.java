@@ -81,10 +81,6 @@ public class Client {
         setClientState(clientState = clientState.persist(this));
     }
 
-    public void blacklist() {
-        setClientState(clientState = clientState.blacklist(this));
-    }
-
     public byte[] getAccessToken() {
         return token.getAccessToken();
     }
@@ -114,5 +110,17 @@ public class Client {
 
     public String getApplicationId() {
         return applicationId;
+    }
+
+    public String getDeviceUuid() {
+        return deviceUuid;
+    }
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public Instant getCreated() {
+        return created;
     }
 }

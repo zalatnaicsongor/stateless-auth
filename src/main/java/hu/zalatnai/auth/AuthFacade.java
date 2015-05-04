@@ -36,9 +36,9 @@ public class AuthFacade {
 
         clientService.saveClient(newClient);
 
-        return new ClientDTO(newClient.getClientUuid(), deviceUuid, deviceName,
-                accessToken, refreshToken, newClient.getTokenExpirationTime(), newClient.getTokenIssuedAt(),
-                newClient.getApplicationId());
+        return new ClientDTO(newClient.getClientUuid(), newClient.getDeviceUuid(), newClient.getDeviceName(),
+                accessToken, refreshToken, newClient.getCreated(), newClient.getTokenExpirationTime(),
+                newClient.getTokenIssuedAt(), newClient.getApplicationId());
     }
 
     @Transactional

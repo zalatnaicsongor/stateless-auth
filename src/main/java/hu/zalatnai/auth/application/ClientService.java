@@ -46,6 +46,7 @@ public class ClientService {
         return applicationInstantiator.create(app, deviceUuid, deviceName);
     }
 
+    //C
     public void saveClient(Client client) {
         client.persist();
         clientRepository.save(client);

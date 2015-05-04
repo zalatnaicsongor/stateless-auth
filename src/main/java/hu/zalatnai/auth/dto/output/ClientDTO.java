@@ -4,21 +4,23 @@ import java.time.Instant;
 import java.util.UUID;
 
 public class ClientDTO {
-    private UUID clientUuid;
-    private String deviceUuid;
-    private String deviceName;
-    private String accessToken;
-    private String refreshToken;
-    private String applicationId;
-    private Instant tokenExpirationTime;
-    private Instant tokenIssuedAt;
+    private final UUID clientUuid;
+    private final String deviceUuid;
+    private final String deviceName;
+    private final String accessToken;
+    private final String refreshToken;
+    private final String applicationId;
+    private final Instant created;
+    private final Instant tokenExpirationTime;
+    private final Instant tokenIssuedAt;
 
-    public ClientDTO(UUID clientUuid, String deviceUuid, String deviceName, String accessToken, String refreshToken, Instant tokenExpirationTime, Instant tokenIssuedAt, String applicationId) {
+    public ClientDTO(UUID clientUuid, String deviceUuid, String deviceName, String accessToken, String refreshToken, Instant created, Instant tokenExpirationTime, Instant tokenIssuedAt, String applicationId) {
         this.clientUuid = clientUuid;
         this.deviceUuid = deviceUuid;
         this.deviceName = deviceName;
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
+        this.created = created;
         this.tokenExpirationTime = tokenExpirationTime;
         this.tokenIssuedAt = tokenIssuedAt;
         this.applicationId = applicationId;

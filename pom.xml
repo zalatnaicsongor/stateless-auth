@@ -116,6 +116,8 @@
                     <excludes>
                         <!-- Application starter -->
                         <exclude>hu/zalatnai/auth/AuthApplication.class</exclude>
+                        <exclude>hu/zalatnai/auth/StateRepositoryConfiguration.class</exclude>
+                        <exclude>hu/zalatnai/auth/AuthController.class</exclude>
                         <exclude>hu/zalatnai/sdk/**</exclude>
                         <exclude>hu/zalatnai/auth/dto/**</exclude>
                     </excludes>
